@@ -1,0 +1,155 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (malloc) failed to allocate 1048576 bytes for AllocateHeap
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   In 32 bit mode, the process size limit was hit
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Use 64 bit Java on a 64 bit OS
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (memory/allocation.inline.hpp:61), pid=85648, tid=0x000000000000f64c
+#
+# JRE version:  (8.0_181-b13) (build )
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (25.181-b13 mixed mode windows-amd64 compressed oops)
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00000000021ee800):  JavaThread "Unknown thread" [_thread_in_vm, id=63052, stack(0x00000000023e0000,0x00000000024e0000)]
+
+Stack: [0x00000000023e0000,0x00000000024e0000]
+[error occurred during error reporting (printing stack bounds), id 0xc0000005]
+
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+
+Other Threads:
+
+=>0x00000000021ee800 (exited) JavaThread "Unknown thread" [_thread_in_vm, id=63052, stack(0x00000000023e0000,0x00000000024e0000)]
+
+VM state:not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Heap:
+ PSYoungGen      total 76288K, used 1310K [0x000000076b400000, 0x0000000770900000, 0x00000007c0000000)
+  eden space 65536K, 2% used [0x000000076b400000,0x000000076b547af0,0x000000076f400000)
+  from space 10752K, 0% used [0x000000076fe80000,0x000000076fe80000,0x0000000770900000)
+  to   space 10752K, 0% used [0x000000076f400000,0x000000076f400000,0x000000076fe80000)
+ ParOldGen       total 175104K, used 0K [0x00000006c1c00000, 0x00000006cc700000, 0x000000076b400000)
+  object space 175104K, 0% used [0x00000006c1c00000,0x00000006c1c00000,0x00000006cc700000)
+ Metaspace       used 784K, capacity 1092K, committed 1152K, reserved 1060864K
+  class space    used 76K, capacity 384K, committed 384K, reserved 1048576K
+
+Card table byte_map: [0x00000000118a0000,0x00000000120a0000] byte_map_base: 0x000000000e292000
+
+Marking Bits: (ParMarkBitMap*) 0x00000000716d2d00
+ Begin Bits: [0x0000000012bb0000, 0x0000000016b40000)
+ End Bits:   [0x0000000016b40000, 0x000000001aad0000)
+
+Polling page: 0x0000000000230000
+
+CodeCache: size=245760Kb used=327Kb max_used=327Kb free=245432Kb
+ bounds [0x00000000024e0000, 0x0000000002750000, 0x00000000114e0000]
+ total_blobs=57 nmethods=0 adapters=38
+ compilation: enabled
+
+Compilation events (0 events):
+No events
+
+GC Heap History (0 events):
+No events
+
+Deoptimization events (0 events):
+No events
+
+Classes redefined (0 events):
+No events
+
+Internal exceptions (0 events):
+No events
+
+Events (10 events):
+Event: 0.027 loading class java/lang/Short
+Event: 0.027 loading class java/lang/Short done
+Event: 0.027 loading class java/lang/Integer
+Event: 0.027 loading class java/lang/Integer done
+Event: 0.027 loading class java/lang/Long
+Event: 0.027 loading class java/lang/Long done
+Event: 0.027 loading class java/lang/NullPointerException
+Event: 0.027 loading class java/lang/NullPointerException done
+Event: 0.027 loading class java/lang/ArithmeticException
+Event: 0.027 loading class java/lang/ArithmeticException done
+
+
+Dynamic libraries:
+0x000000013f1f0000 - 0x000000013f227000 	D:\java\jdk1.8.0_181\bin\java.exe
+0x0000000077470000 - 0x000000007760f000 	C:\windows\SYSTEM32\ntdll.dll
+0x0000000077350000 - 0x000000007746f000 	C:\windows\system32\kernel32.dll
+0x000007fefd190000 - 0x000007fefd1fa000 	C:\windows\system32\KERNELBASE.dll
+0x000007feff550000 - 0x000007feff62b000 	C:\windows\system32\ADVAPI32.dll
+0x000007feff4b0000 - 0x000007feff54f000 	C:\windows\system32\msvcrt.dll
+0x000007fefe900000 - 0x000007fefe91f000 	C:\windows\SYSTEM32\sechost.dll
+0x000007fefeb00000 - 0x000007fefec2d000 	C:\windows\system32\RPCRT4.dll
+0x0000000077250000 - 0x000000007734a000 	C:\windows\system32\USER32.dll
+0x000007fefee00000 - 0x000007fefee67000 	C:\windows\system32\GDI32.dll
+0x000007fefd380000 - 0x000007fefd38e000 	C:\windows\system32\LPK.dll
+0x000007feff630000 - 0x000007feff6fb000 	C:\windows\system32\USP10.dll
+0x000007fefb9e0000 - 0x000007fefbbd4000 	C:\windows\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.7601.18837_none_fa3b1e3d17594757\COMCTL32.dll
+0x000007feff430000 - 0x000007feff4a1000 	C:\windows\system32\SHLWAPI.dll
+0x000007fefeef0000 - 0x000007fefef1e000 	C:\windows\system32\IMM32.DLL
+0x000007fefecf0000 - 0x000007fefedf9000 	C:\windows\system32\MSCTF.dll
+0x0000000078e80000 - 0x0000000078f52000 	D:\java\jdk1.8.0_181\jre\bin\msvcr100.dll
+0x0000000070eb0000 - 0x0000000071752000 	D:\java\jdk1.8.0_181\jre\bin\server\jvm.dll
+0x000007feee7d0000 - 0x000007feee7d9000 	C:\windows\system32\WSOCK32.dll
+0x000007feff3e0000 - 0x000007feff42d000 	C:\windows\system32\WS2_32.dll
+0x000007fefef20000 - 0x000007fefef28000 	C:\windows\system32\NSI.dll
+0x000007fef8260000 - 0x000007fef829b000 	C:\windows\system32\WINMM.dll
+0x000007fefc0a0000 - 0x000007fefc0ac000 	C:\windows\system32\VERSION.dll
+0x0000000077620000 - 0x0000000077627000 	C:\windows\system32\PSAPI.DLL
+0x0000000000220000 - 0x000000000022f000 	D:\java\jdk1.8.0_181\jre\bin\verify.dll
+0x0000000001b60000 - 0x0000000001b89000 	D:\java\jdk1.8.0_181\jre\bin\java.dll
+0x0000000001bb0000 - 0x0000000001bc6000 	D:\java\jdk1.8.0_181\jre\bin\zip.dll
+
+VM Arguments:
+jvm_args: -Dapp.name=browsermob-proxy -Dapp.repo=F:\browsermob-proxy-2.1.4\bin\\..\lib -Dbasedir=F:\browsermob-proxy-2.1.4\bin\\.. 
+java_command: net.lightbody.bmp.proxy.Main --port=8080
+java_class_path (initial): ;F:\browsermob-proxy-2.1.4\bin\\..\etc;F:\browsermob-proxy-2.1.4\bin\\..\lib\browsermob-dist-2.1.4.jar
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+JAVA_HOME=D:\java\jdk1.8.0_181
+CLASSPATH="F:\browsermob-proxy-2.1.4\bin\\.."\etc;"F:\browsermob-proxy-2.1.4\bin\\..\lib"\*
+PATH=D:\Xftp 6\;D:\Xshell 6\;D:\Anaconda3;D:\Anaconda3\Library\mingw-w64\bin;D:\Anaconda3\Library\usr\bin;D:\Anaconda3\Library\bin;D:\Anaconda3\Scripts;D:\java\jdk1.8.0_181\bin;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\windows\system32;C:\windows;C:\windows\System32\Wbem;C:\windows\System32\WindowsPowerShell\v1.0\;D:\apache-maven-3.0.5\bin;D:\notejs\;C:\ProgramData\chocolatey\bin;C:\Program Files\Git\cmd;C:\Program Files\Oracle\VirtualBox\;C:\Program Files\Oracle\VirtualBox\;;D:\Microsoft VS Code\Microsoft VS Code\bin;D:\fidder\Fiddler;C:\Users\Administrator\AppData\Roaming\npm;C:\Program Files\Docker Toolbox
+USERNAME=Administrator
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 158 Stepping 9, GenuineIntel
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 7 , 64 bit Build 7601 (6.1.7601.24308)
+
+CPU:total 4 (initial active 4) (2 cores per cpu, 2 threads per core) family 6 model 158 stepping 9, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, aes, clmul, erms, 3dnowpref, lzcnt, ht, tsc, tscinvbit
+
+Memory: 4k page, physical 16662232k(7758744k free), swap 57501424k(5060k free)
+
+vm_info: Java HotSpot(TM) 64-Bit Server VM (25.181-b13) for windows-amd64 JRE (1.8.0_181-b13), built on Jul  7 2018 04:01:33 by "java_re" with MS VC++ 10.0 (VS2010)
+
+time: Tue Nov 19 09:39:41 2019
+elapsed time: 0 seconds (0d 0h 0m 0s)
+
