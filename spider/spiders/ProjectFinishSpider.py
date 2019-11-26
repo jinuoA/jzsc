@@ -7,7 +7,7 @@ from spider.spiders.config import *
 import datetime as dt
 from spider.util.decrypt import decrypts
 import json
-
+import time
 
 class ProjectFinishSpider(SpiderMain):
 
@@ -46,11 +46,20 @@ class ProjectFinishSpider(SpiderMain):
                     money = data['FACTCOST']
                     build_scale = data['FACTSIZE']
                     building_system = data['PRJSTRUCTURETYPE']
+                    area = data['FACTAREA']
+                    build_licence_code = data['BUILDERLICENCENUM']
                     begin_date = data['BDATE']
                     end_date = data['EDATE']
                     recod_time = data['CREATEDATE']
-                    area = data['FACTAREA']
-                    build_licence_code = data['BUILDERLICENCENUM']
+                    if begin_date is not None:
+                        time_begin = time.localtime(int(begin_date) / 1000)
+                        begin_date = time.strftime("%Y-%m-%d", time_begin)
+                    if end_date is not None:
+                        time_end = time.localtime(int(end_date) / 1000)
+                        end_date = time.strftime("%Y-%m-%d", time_end)
+                    if recod_time is not None:
+                        time_recod = time.localtime(int(recod_time) / 1000)
+                        recod_time = time.strftime("%Y-%m-%d", time_recod)
                     item = dict(
                         company_ID=comp_id,  # '建设部企业ID'
                         insert_time=date,  # 获取时间

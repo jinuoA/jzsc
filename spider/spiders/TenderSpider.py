@@ -59,10 +59,12 @@ class TenderSpider(SpiderMain):
                     recod_time = data['CREATEDATE']
                     persion_ID = ''
                     bidding_agent_group = data['AGENCYCORPCODE']
-                    time_get = time.localtime(int(winningbid_date) / 1000)
-                    winningbid_date = time.strftime("%Y-%m-%d", time_get)
-                    time_end = time.localtime(int(recod_time) / 1000)
-                    recod_time = time.strftime("%Y-%m-%d", time_end)
+                    if winningbid_date is not None:
+                        time_get = time.localtime(int(winningbid_date) / 1000)
+                        winningbid_date = time.strftime("%Y-%m-%d", time_get)
+                    if recod_time is not None:
+                        time_end = time.localtime(int(recod_time) / 1000)
+                        recod_time = time.strftime("%Y-%m-%d", time_end)
                     item = dict(
                         company_ID=comp_id,  # '建设部企业ID'
                         insert_time=date,  # 获取时间

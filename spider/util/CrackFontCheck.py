@@ -106,7 +106,7 @@ class HandlePic(object):
                         driver.execute(Command.MOVE_TO, {'xoffset': location[0], 'yoffset': location[1]})
                         print(" 点击坐标 " + str(location[0]), str(location[1]))
                         ActionChains(driver).move_to_element_with_offset(element, location[0],
-                                                                         location[1]-8).click().perform()  # 模拟点击
+                                                                         location[1]+8).click().perform()  # 模拟点击
                         time.sleep(0.9)
                         location_x = location[0]
                         location_y = location[1]
@@ -121,13 +121,13 @@ class HandlePic(object):
             os.remove(save_path)
 
 
-if __name__ == '__main__':
-    opt = webdriver.ChromeOptions()
-    opt.add_experimental_option('w3c', False)
-    driver = webdriver.Chrome(chrome_options=opt)
-    driver.maximize_window()
-    start_url = "http://dun.163.com/trial/picture-click"
-    driver.get(start_url)
-    hp = HandlePic()
-    hp.click_pic(driver)
-    driver.quit()
+# if __name__ == '__main__':
+#     opt = webdriver.ChromeOptions()
+#     opt.add_experimental_option('w3c', False)
+#     driver = webdriver.Chrome(chrome_options=opt)
+#     driver.maximize_window()
+#     start_url = "http://dun.163.com/trial/picture-click"
+#     driver.get(start_url)
+#     hp = HandlePic()
+#     hp.click_pic(driver)
+#     driver.quit()

@@ -14,7 +14,7 @@ from spider.spiders.BuilderLicenceSpider import BuildLicenceSpider
 from spider.spiders.ProjectFinishSpider import ProjectFinishSpider
 from spider.spiders.BuildLicencePersonSpider import BuildLicencePersonSpider
 from spider.spiders.SaveWithinProjectSpider import SaveWithinProjectSpider
-
+from spider.spiders.StaffSpider import  StaffSpider
 import time
 import math
 
@@ -238,6 +238,25 @@ class Scheduler(object):
         except Exception as e:
             print("Error Spider Staff info", e)
 
+    def __scheduleStaff__(self, cycle=SPIDER_CYCLE):
+        """
+        定时爬取公司人员信息
+        :param cycle:
+        :return:
+        """
+        try:
+            # conn = RedisClient()
+            spider = StaffSpider()
+            print('开始获取公司人员信息')
+            # new_list = self.__divList__(list_id=list_id)
+            mysql = MySQLClient()
+            sql = 'select * from cityNo where flag is NULL'
+            city_list = mysql.getAll(sql)
+            spider.run(city_list)
+            time.sleep(cycle)
+        except Exception as e:
+            print("Error Spider Staff info", e)
+
     def run(self):
         print("爬虫开始运行")
 
@@ -279,6 +298,9 @@ class Scheduler(object):
         if FINISH_ENABLED:
             self.__scheduleProjectFinishInfo__()
 
+        # 抓取人员信息获取公司名称
+        if STAFF_ENABLED:
+            self.__scheduleStaff__()
         # if SAVEWITHIN_ENABLED:
         #     self.__scheduleWithinProjectList__()
 

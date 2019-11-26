@@ -47,7 +47,7 @@ class ContractRecordSpider(SpiderMain):
                     contract_group = ''
                     contract_money = data['CONTRACTMONEY']
                     build_scale = data['PRJSIZE']
-                    contract_signing_date = data['CONTRACTDATE']
+
                     contractor_out_name = data['PROPIETORCORPNAME']
                     contractor_out_code = data['PROPIETORCORPCODE']
                     contractor_name = data['CONTRACTORCORPNAME']
@@ -56,10 +56,13 @@ class ContractRecordSpider(SpiderMain):
                     union_contractor_code = data['UNIONCORPCODE']
                     province_contract_filing_code = ''
                     recod_time = data['CREATEDATE']
-                    time_get = time.localtime(int(contract_signing_date) / 1000)
-                    contract_signing_date = time.strftime("%Y-%m-%d", time_get)
-                    time_end = time.localtime(int(recod_time) / 1000)
-                    recod_time = time.strftime("%Y-%m-%d", time_end)
+                    contract_signing_date = data['CONTRACTDATE']
+                    if recod_time is not None:
+                        time_end = time.localtime(int(recod_time) / 1000)
+                        recod_time = time.strftime("%Y-%m-%d", time_end)
+                    if contract_signing_date is not None:
+                        time_get = time.localtime(int(contract_signing_date) / 1000)
+                        contract_signing_date = time.strftime("%Y-%m-%d", time_get)
                     item = dict(
                         company_ID=comp_id,  # '建设部企业ID'
                         insert_time=date,  # 获取时间

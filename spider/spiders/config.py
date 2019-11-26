@@ -21,8 +21,10 @@ LICENCEMANAGEINFO = 'http://jzsc.mohurd.gov.cn/api/webApi/dataservice/query/proj
 LICENCEMANAGEINFOPERSON = 'http://jzsc.mohurd.gov.cn/api/webApi/dataservice/query/project/builderRelation?BuilderLicenceNum='  # 施工许可人员
 
 FINISHMANAGE = 'http://jzsc.mohurd.gov.cn/api/webApi/dataservice/query/project/projectFinishManage?jsxmCode='  # 竣工验收列表
-FINISHMANAGEINFO='http://jzsc.mohurd.gov.cn/api/webApi/dataservice/query/project/projectFinishManageDetail?id=' # 竣工验收详情
+FINISHMANAGEINFO = 'http://jzsc.mohurd.gov.cn/api/webApi/dataservice/query/project/projectFinishManageDetail?id='  # 竣工验收详情
 MAX_PAGE = 'http://jzsc.mohurd.gov.cn/api/webApi/dataservice/query/comp/getTotal?qyId='  # 获取最大页数
+
+PERSON_LIST = 'http://jzsc.mohurd.gov.cn/api/webApi/dataservice/query/staff/list?complexname='  # 获取人员列表，并保存数据库
 
 # 开关配置
 COMPLIST_ENABLED = False
@@ -33,7 +35,58 @@ PERSON_ENABLED = False
 QUALIFICATION_ENABLE = False
 TENDER_ENABLE = False
 CONTRACT_ENABLED = False
-LICENCE_ENABLED = True
+LICENCE_ENABLED = False
 LICENCE_PERSON_ENABLED = False
 FINISH_ENABLED = False
 # SAVEWITHIN_ENABLED = True
+
+STAFF_ENABLED = True
+
+MONTHS = [
+    '01',
+    '02',
+    '03',
+    '04',
+    'O5',
+    '06',
+    '07',
+    '08',
+    '09',
+    '10',
+    '11',
+    '12',
+]
+
+DAYS = [
+    '01',
+    '02',
+    '03',
+    '04',
+    '05',
+    '06',
+    '07',
+    '08',
+    '09',
+    '10',
+    '11',
+    '12',
+    '13',
+    '14',
+    '15',
+    '16',
+    '17',
+    '18',
+    '19',
+    '20',
+    '21',
+    '22',
+    '23',
+    '24',
+    '25',
+    '26',
+    '27',
+    '28',
+    '29',
+    '30',
+    '31',
+]

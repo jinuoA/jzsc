@@ -3,6 +3,7 @@ from browsermobproxy import Server
 from spider.util.CrackFontCheck import HandlePic
 from selenium.webdriver.chrome.options import Options
 import time
+from spider.util.CrackSlider import CrackSlider
 
 
 # 获取accessToken
@@ -26,13 +27,26 @@ def getToken():
             time.sleep(2)
             driver.refresh()
             time.sleep(1.5)
-            # count += 1
-            # if count >= 2:
+            count += 1
+            if count >= 2:
+                if '验证已过期，是否重新重新进行验证或停留在当前页面？' in driver.page_source:
+                    driver.find_element_by_xpath('//*[@id="app"]/div/header/div[5]/div/div[3]/div/button[1]').click()
+                    driver.find_element_by_xpath('body > div.yidun_popup--light.yidun_popup > div.yidun_modal__wrap > div > div > div.yidun_modal__body > div > div.yidun_panel > div > div.yidun_bgimg > img.yidun_jigsaw')
 
-            if '验证已过期，是否重新重新进行验证或停留在当前页面？' in driver.page_source:
-                driver.find_element_by_xpath('//*[@id="app"]/div/header/div[5]/div/div[3]/div/button[1]').click()
-                hp = HandlePic()
-                hp.click_pic(driver)
+                    # hp = HandlePic()
+                    # flag = hp.isElementExist(driver,
+                    #                          'body > div.yidun_popup--light.yidun_popup > div.yidun_modal__wrap > div > div > div.yidun_modal__body > div > div.yidun_panel > div > div.yidun_bgimg > img.yidun_jigsaw')
+                    # if flag is False:
+                    #     hp.click_pic(driver)
+                    # else:
+                    #     cs = CrackSlider()
+                    #     cs.open()
+                    #     target = 'target.jpg'
+                    #     template = 'template.png'
+                    #     cs.get_pic()
+                    #     distance = cs.match(target, template)
+                    #     tracks = cs.get_tracks((distance + 7) * cs.zoom)  # 对位移的缩放计算
+                    #     cs.crack_slider(tracks)
         result = proxy.har
         token = set()
         for entry in result['log']['entries']:
@@ -47,5 +61,17 @@ def getToken():
     except Exception as e:
         print(e)
     finally:
-        driver.quit()
         server.stop()
+        driver.quit()
+
+
+
+def isElementExist(driver, element):
+    flag = True
+    try:
+        driver.find_element_by_xpath(element)
+        return flag
+
+    except:
+        flag = False
+        return flag
