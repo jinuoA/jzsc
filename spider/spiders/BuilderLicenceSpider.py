@@ -40,8 +40,7 @@ class BuildLicenceSpider(SpiderMain):
                 data_json = json.loads(res_json)
                 data = data_json[0]['data']
                 if data is not None:
-                    # comp_id = data['TENDERCORPID']
-                    buildliseID = comp_id
+                    buildliseID = data['BUILDERLICENCENUM']
                     project_ID = data['PRJNUM']
                     province_permit_code = data['PROVINCEPRJNUM']
                     permit_code = data['BUILDERLICENCENUM']
@@ -50,10 +49,14 @@ class BuildLicenceSpider(SpiderMain):
                     area = data['AREA']
                     release_time = data['RELEASEDATE']  # '发证日期'
                     recod_time = data['CREATEDATE']
-                    time_get = time.localtime(int(release_time) / 1000)
-                    release_time = time.strftime("%Y-%m-%d", time_get)
-                    time_end = time.localtime(int(recod_time) / 1000)
-                    recod_time = time.strftime("%Y-%m-%d", time_end)
+                    if release_time is not None and int(release_time) < 0:
+                        release_time = None
+                    if release_time is not None:
+                        time_get = time.localtime(int(release_time) / 1000)
+                        release_time = time.strftime("%Y-%m-%d", time_get)
+                    if recod_time is not None:
+                        time_end = time.localtime(int(recod_time) / 1000)
+                        recod_time = time.strftime("%Y-%m-%d", time_end)
                     item = dict(
                         company_ID=comp_id,  # '建设部企业ID'
                         insert_time=date,  # 获取时间
@@ -68,7 +71,8 @@ class BuildLicenceSpider(SpiderMain):
                         release_time=release_time,
 
                     )
+                    value = str(buildliseID) + '_' + comp_id
                     if self.__saveOneData__(table_name='ConstructionPermit', data=item):
-                        self.__saveOneID__(idx=comp_id, rediskey='BuildLicenceInfoID')
+                        self.__saveOneID__(idx=value, rediskey='BuildLicenceInfoID')
         except Exception as e:
             print(e)
