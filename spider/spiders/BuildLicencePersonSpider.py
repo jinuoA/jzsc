@@ -37,29 +37,32 @@ class BuildLicencePersonSpider(SpiderMain):
                 res = decrypts(data_jsons)
                 res_json = str(res).replace("'", "").split('success')[0] + 'success":true}' + "]"
                 data_json = json.loads(res_json)
-                data = data_json[0]['data']
-                if len(data) > 0:
-                    buildliseID = data['BUILDERLICENCENUM']
-                    user_id = data['USERID']
-                    cid = data['IDCARD']
-                    user_name = data['USERNAME']
-                    company_name = data['CORPNAME']
-                    company_type = data['CORPROLE']
-                    per_type = data['PERTYPE']
-                    company_id = data['CORPID']
-                    item = dict(
-                        insert_time=date,  # 插入时间
-                        construction_permit_ID=buildliseID,  # 施工许可信息ID
-                        user_id=user_id,  # 人员id
-                        cid=cid,  # 身份证
-                        user_name=user_name,  # 人员姓名
-                        company_name=company_name,  # 公司名称
-                        company_type=company_type,  # 公司类型
-                        per_type=per_type,  # 人员类型
-                        company_id=company_id,  # 公司id
+                datas = data_json[0]['data']['list']
+                if len(datas) > 0:
+                    for data in datas:
+                        if len(data) > 0:
+                            buildliseID = data['BUILDERLICENCENUM']
+                            user_id = data['USERID']
+                            cid = data['IDCARD']
+                            user_name = data['USERNAME']
+                            company_name = data['CORPNAME']
+                            company_type = data['CORPROLE']
+                            per_type = data['PERTYPE']
+                            company_id = comp_id
+                            item = dict(
+                                insert_time=date,  # 插入时间
+                                construction_permit_ID=buildliseID,  # 施工许可信息ID
+                                user_id=user_id,  # 人员id
+                                cid=cid,  # 身份证
+                                user_name=user_name,  # 人员姓名
+                                company_name=company_name,  # 公司名称
+                                company_type=company_type,  # 公司类型
+                                per_type=per_type,  # 人员类型
+                                company_id=company_id,  # 公司id
 
-                    )
-                    if self.__saveOneData__(table_name='ConstructionPermitPerson', data=item):
-                        self.__saveOneID__(idx=comp_id, rediskey='BuildLicencePersonID')
+                            )
+                            value = str(buildliseID) + '_' + comp_id
+                            if self.__saveOneData__(table_name='ConstructionPermitPerson', data=item):
+                                self.__saveOneID__(idx=value, rediskey='BuildLicencePersonID')
         except Exception as e:
             print(e)
