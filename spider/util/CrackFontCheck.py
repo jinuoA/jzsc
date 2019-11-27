@@ -100,25 +100,27 @@ class HandlePic(object):
                     time.sleep(0.5)
                     location_x = 0
                     location_y = 0
-                    pyautogui.moveTo(locations['x']+27, int(locations['y']+125), duration=0.1)  # 鼠标定位到图片左上角
+                    pyautogui.moveTo(locations['x']+27, int(locations['y']+125), duration=0.3)  # 鼠标定位到图片左上角
                     for location in locations_chaojiying:
-                        pyautogui.moveRel(location[0] - location_x, location[1] - location_y, duration=0.5)  # 根据获取的坐标移动
+                        pyautogui.moveRel(location[0] - location_x, location[1] - location_y, duration=0.6)  # 根据获取的坐标移动
                         driver.execute(Command.MOVE_TO, {'xoffset': location[0], 'yoffset': location[1]})
                         print(" 点击坐标 " + str(location[0]), str(location[1]))
                         ActionChains(driver).move_to_element_with_offset(element, location[0],
-                                                                         location[1]+8).click().perform()  # 模拟点击
+                                                                         location[1]+2).click().perform()  # 模拟点击
                         time.sleep(0.9)
                         location_x = location[0]
                         location_y = location[1]
-                    if '验证成功' in driver.page_source:
-                        os.remove(save_path)  # 删除截图图片
+                    if 'yidun_bg-img' not in driver.page_source:
+                        # os.remove(save_path)  # 删除截图图片
                         break
-                    else:
+                    while '向右拖动滑块填充拼图' in driver.page_source:
+                        driver.find_element_by_xpath("/html/body/div[2]/div[2]/div/div/div[2]/div/div[1]/div/div[3]/div").click()
                         os.remove(save_path)
         except Exception as e:
             print(e)
         finally:
             os.remove(save_path)
+
 
 
 # if __name__ == '__main__':
