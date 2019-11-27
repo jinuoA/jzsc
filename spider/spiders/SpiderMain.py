@@ -7,6 +7,7 @@ from spider.db.Redis_db import RedisClient
 from spider.spiders.config import *
 import requests
 import json
+import time
 
 HEADERS = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -16,8 +17,10 @@ HEADERS = {
     'Host': 'jzsc.mohurd.gov.cn',
     'Upgrade-Insecure-Requests': '1',
     'accessToken': '',
-    'Connection':'close',
+    'Connection': 'close',
 }
+
+
 
 
 class SpiderMain(object):
@@ -30,10 +33,12 @@ class SpiderMain(object):
     async def get_one_page(self, url):
         try:
             async with asyncio.Semaphore(MAX_ID):
-                async with ClientSession() as session:
+                async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
                     async with session.get(url, headers=self._HEADERS, timeout=15) as r:
-                        # res = decrypts(r.text)
-                        return await r.text()
+                        if r.status == 200 or r.status == 408:
+                            return await r.text()
+                        else:
+                            return await self.get_one_page(url)
         except Exception as e:
             print('请求异常： ' + str(e))
             await self.get_one_page(url)
@@ -64,7 +69,7 @@ class SpiderMain(object):
 
     def __getMaxPage__(self, url):
         try:
-            response = requests.get(url, headers=self._HEADERS, verify=False, timeout=15)
+            response = requests.get(url, headers=self._HEADERS,  verify=False, timeout=15)
             if '4bd02be856577e3e61e83b86f51afca55280b5ee9ca16beb9b2a65406045c9497c089d5e8ff97c63000f62b011a6' \
                '4f4019b64d9a050272bd5914634d030aab69' in response.text:
                 access_token = getToken()
@@ -77,11 +82,16 @@ class SpiderMain(object):
             res = decrypts(response.text)
             res = str(res).replace("'", "").split('success')[0] + 'success":true}' + "]"
             data_json = json.loads(res)
-            return data_json
+            if data_json[0]['code'] == 401:
+                time.sleep(60)
+                return self.__getMaxPage__(url)
+            elif data_json[0]['code'] == 200:
+                return data_json
+            else:
+                return self.__getMaxPage__(url)
         except Exception as e:
             print(e)
             return self.__getMaxPage__(url)
-
 
     def __getID__(self, rediskey=None):
         return self._redis.batch(rediskey=rediskey)

@@ -34,7 +34,7 @@ class Scheduler(object):
 
         try:
             mysql = MySQLClient()
-            sql = 'select * from buildcompanyinfo_copy order by company_ID limit 0,50'
+            sql = 'select * from buildcompanyinfo_copy order by company_ID limit 50,50'
             list_id = mysql.getAll(sql)
             spider = CompanyListSpider()
             spider.runs(list_id)
@@ -260,49 +260,88 @@ class Scheduler(object):
     def run(self):
         print("爬虫开始运行")
 
-        if COMPLIST_ENABLED:
-            self.__scheduleCompListInfo__()
-            # ComInfo_Process = Process(target=self.__scheduleCompListInfo__())
-            # ComInfo_Process.start()
-
-        if COMPINFO_ENABLED:
-            self.__scheduleCompInfo__()
-        #     CompInfo_Process = Process(target=self.__scheduleCompInfo__)
-        #     CompInfo_Process.start()
-
-        if PROJECTLIST_ENABLED:
-            self.__scheduleProjectList__()
-
-        if PROJECTINFO_ENABLED:
-            self.__scheduleProjectInfo__()
-
-        if PERSON_ENABLED:
-            self.__schedulePersonInfo__()
-
-        if QUALIFICATION_ENABLE:
-            self.__scheduleQualificationInfo__()
-
-        if TENDER_ENABLE:
-            self.__scheduleTenderInfo__()
-
-        if CONTRACT_ENABLED:
-            self.__scheduleContractRecordInfo__()
-
-
-        if LICENCE_ENABLED:
-            self.__scheduleBuildLicenceInfo__()
-
-        if LICENCE_PERSON_ENABLED:
-            self.__scheduleBuildLicencePerson__()
-
-        if FINISH_ENABLED:
-            self.__scheduleProjectFinishInfo__()
+        # if COMPLIST_ENABLED:
+        #     self.__scheduleCompListInfo__()
+        #
+        # if COMPINFO_ENABLED:
+        #     self.__scheduleCompInfo__()
+        #
+        # if PROJECTLIST_ENABLED:
+        #     self.__scheduleProjectList__()
+        #
+        # if PROJECTINFO_ENABLED:
+        #     self.__scheduleProjectInfo__()
+        #
+        # if PERSON_ENABLED:
+        #     self.__schedulePersonInfo__()
+        #
+        # if QUALIFICATION_ENABLE:
+        #     self.__scheduleQualificationInfo__()
+        #
+        # if TENDER_ENABLE:
+        #     self.__scheduleTenderInfo__()
+        #
+        # if CONTRACT_ENABLED:
+        #     self.__scheduleContractRecordInfo__()
+        #
+        # if LICENCE_ENABLED:
+        #     self.__scheduleBuildLicenceInfo__()
+        #
+        # if LICENCE_PERSON_ENABLED:
+        #     self.__scheduleBuildLicencePerson__()
+        #
+        # if FINISH_ENABLED:
+        #     self.__scheduleProjectFinishInfo__()
 
         # 抓取人员信息获取公司名称
         if STAFF_ENABLED:
             self.__scheduleStaff__()
-        # if SAVEWITHIN_ENABLED:
-        #     self.__scheduleWithinProjectList__()
+        """
+        并行
+        """
+        if COMPLIST_ENABLED:
+            ComInfo_Process = Process(target=self.__scheduleCompListInfo__())
+            ComInfo_Process.start()
+
+        if COMPINFO_ENABLED:
+            ComInfo_Process = Process(target=self.__scheduleCompInfo__())
+            ComInfo_Process.start()
+
+        if PROJECTLIST_ENABLED:
+            ComInfo_Process = Process(target=self.__scheduleProjectList__())
+            ComInfo_Process.start()
+
+        if PROJECTINFO_ENABLED:
+            ComInfo_Process = Process(target=self.__scheduleProjectInfo__())
+            ComInfo_Process.start()
+
+        if PERSON_ENABLED:
+            ComInfo_Process = Process(target=self.__schedulePersonInfo__())
+            ComInfo_Process.start()
+
+        if QUALIFICATION_ENABLE:
+            ComInfo_Process = Process(target=self.__scheduleQualificationInfo__())
+            ComInfo_Process.start()
+
+        if TENDER_ENABLE:
+            ComInfo_Process = Process(target=self.__scheduleTenderInfo__())
+            ComInfo_Process.start()
+
+        if CONTRACT_ENABLED:
+            ComInfo_Process = Process(target=self.__scheduleContractRecordInfo__())
+            ComInfo_Process.start()
+
+        if LICENCE_ENABLED:
+            ComInfo_Process = Process(target=self.__scheduleBuildLicenceInfo__())
+            ComInfo_Process.start()
+
+        if LICENCE_PERSON_ENABLED:
+            ComInfo_Process = Process(target=self.__scheduleTenderInfo__())
+            ComInfo_Process.start()
+
+        if FINISH_ENABLED:
+            ComInfo_Process = Process(target=self.__scheduleProjectFinishInfo__())
+            ComInfo_Process.start()
 
 # if __name__ == '__main__':
 #     sc = Scheduler()

@@ -56,6 +56,10 @@ class QualificationSpider(SpiderMain):
                         certification_date = qualification['APT_GET_DATE']
                         validity_term = qualification['APT_EDATE']
                         certification_authority = qualification['APT_GRANT_UNIT']
+                        if certification_date is not None and int(certification_date) < 0:
+                            certification_date = None
+                        if validity_term is not None and int(validity_term) < 0:
+                            validity_term = None
                         if certification_date is not None:
                             time_get = time.localtime(int(certification_date) / 1000)
                             certification_date = time.strftime("%Y-%m-%d", time_get)

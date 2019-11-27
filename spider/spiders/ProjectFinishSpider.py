@@ -51,6 +51,12 @@ class ProjectFinishSpider(SpiderMain):
                     begin_date = data['BDATE']
                     end_date = data['EDATE']
                     recod_time = data['CREATEDATE']
+                    if begin_date is not None and int(begin_date) < 0:
+                        begin_date = None
+                    if end_date is not None and int(end_date) < 0:
+                        end_date = None
+                    if recod_time is not None and int(recod_time) < 0:
+                        recod_time = None
                     if begin_date is not None:
                         time_begin = time.localtime(int(begin_date) / 1000)
                         begin_date = time.strftime("%Y-%m-%d", time_begin)

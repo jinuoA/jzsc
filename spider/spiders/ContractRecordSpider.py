@@ -47,7 +47,6 @@ class ContractRecordSpider(SpiderMain):
                     contract_group = ''
                     contract_money = data['CONTRACTMONEY']
                     build_scale = data['PRJSIZE']
-
                     contractor_out_name = data['PROPIETORCORPNAME']
                     contractor_out_code = data['PROPIETORCORPCODE']
                     contractor_name = data['CONTRACTORCORPNAME']
@@ -57,6 +56,10 @@ class ContractRecordSpider(SpiderMain):
                     province_contract_filing_code = ''
                     recod_time = data['CREATEDATE']
                     contract_signing_date = data['CONTRACTDATE']
+                    if recod_time is not None and int(recod_time) < 0:
+                        recod_time = None
+                    if contract_signing_date is not None and int(contract_signing_date) < 0:
+                        contract_signing_date = None
                     if recod_time is not None:
                         time_end = time.localtime(int(recod_time) / 1000)
                         recod_time = time.strftime("%Y-%m-%d", time_end)

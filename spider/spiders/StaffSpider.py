@@ -53,8 +53,8 @@ class StaffSpider(SpiderMain):
                                             elif total == 0:
                                                 continue
                                             if len(staff_list) > 0:
-                                                self.__asyncSpider__(staff_list, cid+d)
-                                        self.__saveOneID__(idx=cid+d, rediskey='TempStaffInfoID')
+                                                self.__asyncSpider__(staff_list, cid + d)
+                                        self.__saveOneID__(idx=cid + d, rediskey='TempStaffInfoID')
                                 if len(staff_list) > 0:
                                     self.__asyncSpider__(staff_list, cid)
                             self.__saveOneID__(idx=cid, rediskey='TempStaffInfoID')

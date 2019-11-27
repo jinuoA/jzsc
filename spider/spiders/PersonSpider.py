@@ -23,14 +23,15 @@ class PersonSpider(SpiderMain):
                     print(comp_id, 'project is null')
                 else:
                     # 最大页数
-                    url = STAFFAPI + comp_id + '&pg=0&pgsz=15'
+                    comp = str(comp_id).split("_")[0]
+                    url = STAFFAPI + comp + '&pg=0&pgsz=15'
                     json_page = self.__getMaxPage__(url)
                     max_page = math.ceil(int(json_page[0]['data']['pageList']['total']) / 15)  # 向上取整
                     if int(json_page[0]['data']['pageList']['total']) == 0:
                         self.__saveOneID__(idx=comp_id, rediskey='TempPersonListIDIsNull')
                     if max_page >= 1:
                         for page in range(0, max_page):
-                            url = STAFFAPI + comp_id + "&pg=" + str(page) + "&pgsz=15"
+                            url = STAFFAPI + comp + "&pg=" + str(page) + "&pgsz=15"
                             person_list_url.append(url)
                     if len(person_list_url) > 0:
                         self.__asyncSpider__(person_list_url, comp_id)
@@ -49,7 +50,6 @@ class PersonSpider(SpiderMain):
                 if data_json[0]['data'] is not None:
                     person_list = data_json[0]['data']['pageList']['list']
                     for person in person_list:
-                        comp_id = person["REG_QYID"]
                         person_ID = person["RY_ID"]
                         name = person['RY_NAME']
                         cid = person['RY_CARDNO']

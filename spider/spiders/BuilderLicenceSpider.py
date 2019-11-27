@@ -51,6 +51,8 @@ class BuildLicenceSpider(SpiderMain):
                     recod_time = data['CREATEDATE']
                     if release_time is not None and int(release_time) < 0:
                         release_time = None
+                    if recod_time is not None and int(recod_time) < 0:
+                        recod_time = None
                     if release_time is not None:
                         time_get = time.localtime(int(release_time) / 1000)
                         release_time = time.strftime("%Y-%m-%d", time_get)
