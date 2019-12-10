@@ -21,26 +21,34 @@ HEADERS = {
 }
 
 
-
-
 class SpiderMain(object):
 
     def __init__(self):
         self._redis = RedisClient()
         self._mysql = MySQLClient()
         self._HEADERS = HEADERS
+        self.ip = None
+        self.port = None
 
     async def get_one_page(self, url):
         try:
+            if self.ip is None:
+                ip, port = self.__getProxy__()
+                self.ip = ip
+                self.port = port
+            real_proxy = 'http://' + str(self.ip) + ":" + str(self.port)
             async with asyncio.Semaphore(MAX_ID):
                 async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
-                    async with session.get(url, headers=self._HEADERS, timeout=15) as r:
+                    async with session.get(url, proxy=real_proxy, headers=self._HEADERS, timeout=15) as r:
                         if r.status == 200 or r.status == 408:
                             return await r.text()
                         else:
                             return await self.get_one_page(url)
         except Exception as e:
             print('请求异常： ' + str(e))
+            ip, port = self.__getProxy__()
+            self.ip = ip
+            self.port = port
             await self.get_one_page(url)
 
     # 并发爬取
@@ -54,7 +62,13 @@ class SpiderMain(object):
             if len(results) > 0:
                 if '4bd02be856577e3e61e83b86f51afca55280b5ee9ca16beb9b2a65406045c9497c089d5e8ff97c63000f62b011a6' \
                    '4f4019b64d9a050272bd5914634d030aab69' in results or results[0] is False:
-                    access_token = getToken()
+                    #  获取动态ip 传入
+                    ip, port = self.__getProxy__()
+                    self.ip = ip
+                    self.port = port
+                    print("动态 ip 为" + str(ip) + ", 端口：" + str(port))
+                    my_proxy = 'http://' + str(ip) + ":" + str(port)
+                    access_token = getToken(my_proxy)
                     while access_token is None:
                         access_token = getToken()
                     self._HEADERS = {
@@ -69,7 +83,18 @@ class SpiderMain(object):
 
     def __getMaxPage__(self, url):
         try:
-            response = requests.get(url, headers=self._HEADERS,  verify=False, timeout=15)
+            if self.ip is None:
+                ip, port = self.__getProxy__()
+                self.ip = ip
+                self.port = port
+            proxyMeta = "http://%(host)s:%(port)s" % {
+                "host": self.ip,
+                "port": self.port,
+            }
+            proxies = {
+                "http": proxyMeta,
+            }
+            response = requests.get(url, proxies=proxies, headers=self._HEADERS, verify=False, timeout=10)
             if '4bd02be856577e3e61e83b86f51afca55280b5ee9ca16beb9b2a65406045c9497c089d5e8ff97c63000f62b011a6' \
                '4f4019b64d9a050272bd5914634d030aab69' in response.text:
                 access_token = getToken()
@@ -91,6 +116,9 @@ class SpiderMain(object):
                 return self.__getMaxPage__(url)
         except Exception as e:
             print(e)
+            ip, port = self.__getProxy__()
+            self.ip = ip
+            self.port = port
             return self.__getMaxPage__(url)
 
     def __getID__(self, rediskey=None):
@@ -131,6 +159,26 @@ class SpiderMain(object):
     def __asyncSpider__(self, list_id=None, comp_id=None):
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.main(list_id, comp_id))
+
+    """
+    获取代理ip
+    """
+    def __getProxy__(self):
+        url = 'http://http.tiqu.qingjuhe.cn/getip?num=1&type=2&pack=42599&port=1&ts=1&lb=1&pb=4&regions='
+        response = requests.get(url=url)
+        json_str = json.loads(response.text)
+        ip = json_str["data"][0]["ip"]
+        port = json_str["data"][0]["port"]
+        return (ip, port)
+
+    def __getYunProxy__(self):
+        url = 'http://gec.ip3366.net/api/?key=20191204153949621&getnum=1&anonymoustype=3&filter=1&area=1&order=2&formats=2'
+        response = requests.get(url=url)
+        json_str = json.loads(response.text)
+        ip = json_str[0]["Ip"]
+        port = json_str[0]["Port"]
+        return (ip, port)
+
 
     def run(self, data_list):
         for data in data_list:

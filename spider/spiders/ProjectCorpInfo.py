@@ -1,32 +1,28 @@
 from .SpiderMain import SpiderMain
 from spider.spiders.config import *
-import datetime as dt
 from spider.util.decrypt import decrypts
 import json
 import time
-
-"""
-施工许可人员
-"""
+import datetime as dt
 
 
-class BuildLicencePersonSpider(SpiderMain):
+class ProjectCorpInfo(SpiderMain):
 
-    def run(self, list_id):
+    def run(self, list_id, main_url, key):
         new_list = [list_id[x:x + MAX_NUM] for x in range(0, len(list_id), MAX_NUM)]
-        for fen_list in new_list:
-            for data in fen_list:
-                licence_info_url = []
-                licence_id = str(data).split("_", 1)[0]
-                comp_id = str(data).split("_", 1)[1]
-                if self.__findOneID__(idx=licence_id, rediskey='BuildLicencePersonID'):
-                    print(licence_id, 'buildLicencePerson info had spiders')
-                else:
-                    url = LICENCEMANAGEINFOPERSON + licence_id + "&pg=0&pgsz=15&total=0"
-                    licence_info_url.append(url)
-                self.__asyncSpider__(licence_info_url, comp_id)
+        for data in new_list:
+            for project_id in data:
+                list_url = []
+                for main in main_url:
+                    comp_id = project_id
+                    project_id = str(project_id).split("_", 1)[0]
+                    url = main + project_id + "&pg=0&pgsz=15&total=0"
+                    list_url.append(url)
+                if len(list_url) > 0:
+                    temp = key + '_' + comp_id
+                    self.__asyncSpider__(list_url, temp)
 
-    # 保存数据
+    # 保存数据 redis
     async def __saveJsonData__(self, data=None, comp_id=None):
         try:
             date = dt.datetime.now().date()
@@ -37,18 +33,23 @@ class BuildLicencePersonSpider(SpiderMain):
                 res = decrypts(data_jsons)
                 res_json = str(res).replace("'", "").split('success')[0] + 'success":true}' + "]"
                 data_json = json.loads(res_json)
-                datas = data_json[0]['data']['list']
-                if len(datas) > 0:
+                if data_json[0]['data'] is not None:
+                    datas = data_json[0]['data']['list']
+                    comp = str(comp_id).split("_", 1)[1].split("_", 1)[1]
                     for data in datas:
                         if len(data) > 0:
-                            buildliseID = data['BUILDERLICENCENUM']
-                            user_id = data['USERID']
-                            cid = data['IDCARD']
-                            user_name = data['USERNAME']
+                            user_name = data['PERSONNAME']
+                            project_id = str(data['PRJNUM'])
+                            cid = data['PERSONIDCARD']
                             company_name = data['CORPNAME']
-                            company_type = data['CORPROLE']
-                            per_type = data['PERTYPE']
-                            company_id = comp_id
+                            company_type = data['CORPROLENUM']
+                            user_id = data['PERSONID']
+                            corpcode = data['CORPCODE']
+                            per_type = data['IDCARDTYPENUM']
+                            company_id = comp
+                            buildliseID = data['CORPID']
+                            if buildliseID is None:
+                                buildliseID = ''
                             item = dict(
                                 insert_time=date,  # 插入时间
                                 construction_permit_ID=buildliseID,  # 施工许可信息ID
@@ -59,9 +60,10 @@ class BuildLicencePersonSpider(SpiderMain):
                                 company_type=company_type,  # 公司类型
                                 per_type=per_type,  # 人员类型
                                 company_id=company_id,  # 公司id
-
+                                corpcode=corpcode,
+                                project_id=project_id,
                             )
                             if self.__saveOneData__(table_name='ConstructionPermitPerson', data=item):
-                                self.__saveOneID__(idx=buildliseID, rediskey='BuildLicencePersonID')
+                                self.__saveOneID__(idx=buildliseID, rediskey='ProjectCorpInfoID')
         except Exception as e:
             print(e)

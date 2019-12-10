@@ -8,15 +8,17 @@ from spider.spiders.ProjectListSpider import ProjectListSpider
 from spider.spiders.PersonSpider import PersonSpider
 from spider.spiders.CompanyInfoSpider import CompanyInfoSpider
 from spider.spiders.ProjectInfoSpider import ProjectInfoSpider
-from spider.spiders.TenderSpider import TenderSpider
-from spider.spiders.ContractRecordSpider import ContractRecordSpider
-from spider.spiders.BuilderLicenceSpider import BuildLicenceSpider
-from spider.spiders.ProjectFinishSpider import ProjectFinishSpider
+from spider.spiders.TenderListSpider import TenderListSpider
+from spider.spiders.ProjectCorpInfo import ProjectCorpInfo
+from spider.spiders.ContractRecordListSpider import ContractRecordListSpider
+from spider.spiders.BuildLicenceListSpider import BuildLicenceListSpider
+from spider.spiders.ProjectFinishListSpider import ProjectFinishListSpider
 from spider.spiders.BuildLicencePersonSpider import BuildLicencePersonSpider
 from spider.spiders.SaveWithinProjectSpider import SaveWithinProjectSpider
-from spider.spiders.StaffSpider import  StaffSpider
+from spider.spiders.StaffSpider import StaffSpider
 import time
 import math
+import datetime
 
 
 class Scheduler(object):
@@ -28,17 +30,63 @@ class Scheduler(object):
             for i in range(div):
                 new_list.append(list_id[i * MAX_ID:(i + 1) * MAX_ID])
             new_list.append(list_id[(i + 1) * MAX_ID:])
-        return new_list[:10]
+        return new_list[:5]
 
-    def __scheduleCompListInfo__(self, cycle=SPIDER_CYCLE):
+    def __scheduleCompListInfo__(self):
 
         try:
+            conn = RedisClient()
             mysql = MySQLClient()
-            sql = 'select * from buildcompanyinfo_copy order by company_ID limit 50,50'
-            list_id = mysql.getAll(sql)
-            spider = CompanyListSpider()
-            spider.runs(list_id)
-            time.sleep(cycle)
+            sql = 'select * from companyName where flag is null order by id limit %d, %d' % (NUM, PRE)
+            list_name = mysql.getAll(sql)
+            for list_id in list_name:
+                if conn.exists(idx=list_id[1], rediskey='CompName'):
+                    print(list_id[1], ' comp info is spiders')
+                else:
+                    conn.delete_key(rediskey='CompName')
+                    conn.delete_key(rediskey='TempCompInfoID')
+                    conn.delete_key(rediskey='CompInfoID')
+                    conn.delete_key(rediskey='QualificationInfoID')
+                    conn.delete_key(rediskey='ProjectID')
+                    conn.delete_key(rediskey='TempProjectListID')
+                    conn.delete_key(rediskey='ProjectInfoID')
+                    conn.delete_key(rediskey='TenderInfoID')
+                    conn.delete_key(rediskey='TenderListID')
+                    conn.delete_key(rediskey='ContractListID')
+                    conn.delete_key(rediskey='ContractInfoID')
+                    conn.delete_key(rediskey='BuildLicenceInfoID')
+                    conn.delete_key(rediskey='BuildLicenceListID')
+                    conn.delete_key(rediskey='BuildLicencePersonID')
+                    conn.delete_key(rediskey='ProFinishListID')
+                    conn.delete_key(rediskey='ProjectFinishInfoID')
+                    conn.delete_key(rediskey='ProjectCorpInfoID')
+                    conn.delete_key(rediskey='TempTenderListID')
+                    conn.delete_key(rediskey='TempContractListID')
+                    conn.delete_key(rediskey='TempProFinishListID')
+                    conn.delete_key(rediskey='TempProCensorListID')
+                    conn.delete_key(rediskey='TempBuildLicenceListID')
+                    conn.delete_key(rediskey='TempProjectCorpInfoID')
+
+                    nowTime_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 获取当前时间
+                    five_time = datetime.datetime.now().strftime('%Y-%m-%d') + " 05:00:00"  # 每天5点
+                    six_time = datetime.datetime.now().strftime('%Y-%m-%d') + " 06:00:00"  # 每天6点
+                    if nowTime_str < five_time or nowTime_str > six_time:
+                        spider = CompanyListSpider()
+                        spider.runs(list_id[1])
+                        # time.sleep(cycle)
+                        self.__scheduleProjectList__()
+                        # self.__scheduleQualificationInfo__()
+                        self.__scheduleTenderInfo__()
+                        self.__scheduleContractRecordInfo__()
+                        self.__scheduleProjectCorpInfo__()
+                        self.__scheduleBuildLicenceInfo__()
+                        # self.__scheduleBuildLicencePerson__()
+                        self.__scheduleProjectFinishInfo__()
+                        update_sql = 'update companyName set flag = 1 where companyName = "%s" ' % list_id[1]
+                        end_time = datetime.datetime.now().strftime('%Y-%m-%d') + " 07:00:00"  # 每天7点
+                        if nowTime_str > end_time or nowTime_str < six_time:
+                            mysql.__updateData__(update_sql)
+
         except Exception as e:
             print(e)
 
@@ -56,7 +104,6 @@ class Scheduler(object):
             list_id = list(set(conn.all(rediskey='TempCompInfoID')) - set(conn.all(rediskey='CompInfoID')))
             # new_list = self.__divList__(list_id=list_id)
             spider.run(list_id)
-            time.sleep(cycle)
         except Exception as e:
             print("Error Spider comp info", e)
 
@@ -75,7 +122,6 @@ class Scheduler(object):
                 set(conn.all(rediskey='CompInfoID')) - set(conn.all(rediskey='QualificationInfoID')))
             # new_list = self.__divList__(list_id=list_id)
             spider.run(list_id)
-            time.sleep(cycle)
         except Exception as e:
             print("Error Spider Qualification info", e)
 
@@ -92,7 +138,6 @@ class Scheduler(object):
             print('当前以获取项目ID量为：', conn.count(rediskey='ProjectID'))
             list_id = list(set(conn.all(rediskey='CompInfoID')) - set(conn.all(rediskey='ProjectID')))
             spider.run(list_id)
-            time.sleep(cycle)
         except Exception as e:
             print("Error Spider project list", e)
 
@@ -109,7 +154,17 @@ class Scheduler(object):
             print('当前以获取项目ID量为：', conn.count(rediskey='ProjectInfoID'))
             list_id = list(set(conn.all(rediskey='TempProjectListID')) - set(conn.all(rediskey='ProjectInfoID')))
             spider.run(list_id)
-            time.sleep(cycle)
+        except Exception as e:
+            print("Error Spider project list", e)
+
+    def __scheduleProjectCorpInfo__(self):
+        try:
+            conn = RedisClient()
+            spider = ProjectCorpInfo()
+            print('开始获取项目')
+            key = 'TempProjectCorpInfoID'
+            list_id = list(set(conn.all(rediskey=key)))
+            spider.run(list_id, main_url=[PROJECTCORPINFO], key=key)
         except Exception as e:
             print("Error Spider project list", e)
 
@@ -122,12 +177,10 @@ class Scheduler(object):
         try:
             conn = RedisClient()
             print('开始获取公司项目招标信息')
-            print('当前以获取招标招标ID量为：', conn.count(rediskey='TenderInfoID'))
-            self.__scheduleWithinProjectList__(main_url=[TENDERAPI], TempList='TenderListID')
-            list_id = list(set(conn.all(rediskey='TenderListID')) - set(conn.all(rediskey='TenderInfoID')))
-            spider = TenderSpider()
-            spider.run(list_id)
-            time.sleep(cycle)
+            spider = TenderListSpider()
+            key = 'TempTenderListID'
+            list_id = list(set(conn.all(rediskey=key)))
+            spider.run(list_id, main_url=[TENDERAPI], key=key)
         except Exception as e:
             print("Error Spider project list", e)
 
@@ -145,7 +198,6 @@ class Scheduler(object):
             list_id = list(set(conn.all(rediskey=key)))
             spider = SaveWithinProjectSpider()
             spider.run(list_id, main_url, TempList)
-            time.sleep(cycle)
         except Exception as e:
             print("Error Spider project list", e)
 
@@ -157,13 +209,11 @@ class Scheduler(object):
         """
         try:
             conn = RedisClient()
-            spider = ContractRecordSpider()
             print('开始获取公司项目合同登记信息')
-            print('当前以获取项目合同登记ID量为：', conn.count(rediskey='ContractRecordInfoID'))
-            self.__scheduleWithinProjectList__(main_url=[CONTRACTRECORD], TempList='ContractListID')
-            list_id = list(set(conn.all(rediskey='ContractListID')) - set(conn.all(rediskey='ContractInfoID')))
-            spider.run(list_id)
-            time.sleep(cycle)
+            spider = ContractRecordListSpider()
+            key = 'TempContractListID'
+            list_id = list(set(conn.all(rediskey=key)))
+            spider.run(list_id, main_url=[CONTRACTRECORD], key=key)
         except Exception as e:
             print("Error Spider project list", e)
 
@@ -175,13 +225,11 @@ class Scheduler(object):
         """
         try:
             conn = RedisClient()
-            spider = BuildLicenceSpider()
             print('开始获取公司项目施工许可信息')
-            print('当前以获取项目施工许可ID量为：', conn.count(rediskey='BuildLicenceInfoID'))
-            self.__scheduleWithinProjectList__(main_url=[LICENCEMANAGE], TempList='BuildLicenceListID')
-            list_id = list(set(conn.all(rediskey='BuildLicenceListID')) - set(conn.all(rediskey='BuildLicenceInfoID')))
-            spider.run(list_id)
-            time.sleep(cycle)
+            spider = BuildLicenceListSpider()
+            key = 'TempBuildLicenceListID'
+            list_id = list(set(conn.all(rediskey=key)))
+            spider.run(list_id, main_url=[LICENCEMANAGE], key=key)
         except Exception as e:
             print("Error Spider project list", e)
 
@@ -196,9 +244,9 @@ class Scheduler(object):
             spider = BuildLicencePersonSpider()
             print('开始获取公司项目施工许可人员信息')
             print('当前以获取项目施工许可人员ID量为：', conn.count(rediskey='BuildLicencePersonID'))
-            list_id = list(set(conn.all(rediskey='BuildLicenceInfoID')) - set(conn.all(rediskey='BuildLicencePersonID')))
+            list_id = list(
+                set(conn.all(rediskey='BuildLicenceInfoID')) - set(conn.all(rediskey='BuildLicencePersonID')))
             spider.run(list_id)
-            time.sleep(cycle)
         except Exception as e:
             print("Error Spider project list", e)
 
@@ -210,13 +258,11 @@ class Scheduler(object):
         """
         try:
             conn = RedisClient()
-            spider = ProjectFinishSpider()
             print('开始获取公司项目竣工信息')
-            print('当前以获取项目竣工ID量为：', conn.count(rediskey='ProjectFinishInfoID'))
-            self.__scheduleWithinProjectList__(main_url=[FINISHMANAGE], TempList='ProFinishListID')
-            list_id = list(set(conn.all(rediskey='ProFinishListID')) - set(conn.all(rediskey='ProjectFinishInfoID')))
-            spider.run(list_id)
-            time.sleep(cycle)
+            spider = ProjectFinishListSpider()
+            key = 'TempProFinishListID'
+            list_id = list(set(conn.all(rediskey=key)))
+            spider.run(list_id, main_url=[FINISHMANAGE], key=key)
         except Exception as e:
             print("Error Spider project list", e)
 
@@ -260,6 +306,9 @@ class Scheduler(object):
     def run(self):
         print("爬虫开始运行")
 
+        if ALL_ENABLED:
+            self.__scheduleCompListInfo__()
+
         # if COMPLIST_ENABLED:
         #     self.__scheduleCompListInfo__()
         #
@@ -300,48 +349,48 @@ class Scheduler(object):
         并行
         """
         if COMPLIST_ENABLED:
-            ComInfo_Process = Process(target=self.__scheduleCompListInfo__())
-            ComInfo_Process.start()
+            CompList_Process = Process(target=self.__scheduleCompListInfo__())
+            CompList_Process.start()
 
         if COMPINFO_ENABLED:
-            ComInfo_Process = Process(target=self.__scheduleCompInfo__())
-            ComInfo_Process.start()
+            CompInfo_Process = Process(target=self.__scheduleCompInfo__())
+            CompInfo_Process.start()
 
         if PROJECTLIST_ENABLED:
-            ComInfo_Process = Process(target=self.__scheduleProjectList__())
-            ComInfo_Process.start()
+            ProList_Process = Process(target=self.__scheduleProjectList__())
+            ProList_Process.start()
 
         if PROJECTINFO_ENABLED:
-            ComInfo_Process = Process(target=self.__scheduleProjectInfo__())
-            ComInfo_Process.start()
+            ProInfo_Process = Process(target=self.__scheduleProjectCorpInfo__())
+            ProInfo_Process.start()
 
         if PERSON_ENABLED:
-            ComInfo_Process = Process(target=self.__schedulePersonInfo__())
-            ComInfo_Process.start()
+            PersonInfo_Process = Process(target=self.__schedulePersonInfo__())
+            PersonInfo_Process.start()
 
         if QUALIFICATION_ENABLE:
-            ComInfo_Process = Process(target=self.__scheduleQualificationInfo__())
-            ComInfo_Process.start()
+            QualificationInfo_Process = Process(target=self.__scheduleQualificationInfo__())
+            QualificationInfo_Process.start()
 
         if TENDER_ENABLE:
-            ComInfo_Process = Process(target=self.__scheduleTenderInfo__())
-            ComInfo_Process.start()
+            TenderInfo_Process = Process(target=self.__scheduleTenderInfo__())
+            TenderInfo_Process.start()
 
         if CONTRACT_ENABLED:
-            ComInfo_Process = Process(target=self.__scheduleContractRecordInfo__())
-            ComInfo_Process.start()
+            CRInfo_Process = Process(target=self.__scheduleContractRecordInfo__())
+            CRInfo_Process.start()
 
         if LICENCE_ENABLED:
-            ComInfo_Process = Process(target=self.__scheduleBuildLicenceInfo__())
-            ComInfo_Process.start()
+            BLInfo_Process = Process(target=self.__scheduleBuildLicenceInfo__())
+            BLInfo_Process.start()
 
         if LICENCE_PERSON_ENABLED:
-            ComInfo_Process = Process(target=self.__scheduleTenderInfo__())
-            ComInfo_Process.start()
+            BLPInfo_Process = Process(target=self.__scheduleBuildLicencePerson__())
+            BLPInfo_Process.start()
 
         if FINISH_ENABLED:
-            ComInfo_Process = Process(target=self.__scheduleProjectFinishInfo__())
-            ComInfo_Process.start()
+            FinishInfo_Process = Process(target=self.__scheduleProjectFinishInfo__())
+            FinishInfo_Process.start()
 
 # if __name__ == '__main__':
 #     sc = Scheduler()

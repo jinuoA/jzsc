@@ -1,10 +1,9 @@
 from .SpiderMain import SpiderMain
 import math
 from spider.spiders.config import *
-import asyncio
 from spider.util.decrypt import decrypts
 import json
-import time
+import datetime as dt
 """
 抓取项目信息
 """
@@ -43,25 +42,42 @@ class ProjectListSpider(SpiderMain):
     # 保存数据 redis
     async def __saveJsonData__(self, data=None, comp_id=None):
         try:
-            now = int(time.time())
+            date = dt.datetime.now().date()
             for data_jsons in data:
-                if '4bd02be856577e3e61e83b86f51afca55280b5ee9ca16beb9b2a65406045c9497c089d5e8ff97c63000f62b011a6' \
-                   '4f4019b64d9a050272bd5914634d030aab69' in data_jsons:
-                    continue
                 res = decrypts(data_jsons)
                 res_json = str(res).replace("'", "").split('success')[0] + 'success":true}' + "]"
                 data_json = json.loads(res_json)
                 if data_json[0]['data'] is not None:
                     projcet_list = data_json[0]['data']['list']
                     for project in projcet_list:
-                        projcet_id = str(project["ID"]) + "_" + comp_id
                         project_num = str(project['PRJNUM']) + "_" + comp_id
-                        self.__saveOneID__(idx=projcet_id, rediskey='TempProjectListID')
-                        self.__saveOneID__(idx=project_num, rediskey='TempTenderListID')
-                        self.__saveOneID__(idx=project_num, rediskey='TempContractListID')
-                        self.__saveOneID__(idx=project_num, rediskey='TempProFinishListID')
-                        self.__saveOneID__(idx=project_num, rediskey='TempProCensorListID')
-                        self.__saveOneID__(idx=project_num, rediskey='TempBuildLicenceListID')
+                        project_ID = project["PRJNUM"]
+                        project_name = project["PRJNAME"]
+                        if project['COUNTY'] is None and project['CITY'] is not None:
+                            project_region = project['PROVINCE'] + '-' + project['CITY']
+                        elif project['CITY'] is None:
+                            project_region = project['PROVINCE']
+                        else:
+                            project_region = project['PROVINCE'] + '-' + project['CITY'] + '-' + project['COUNTY']
+                        build_company = project['BUILDCORPNAME']
+                        project_type = project['PRJTYPENUM']
+                        item = dict(
+                            company_ID=comp_id,  # '建设部企业ID'
+                            insert_time=date,  # 获取时间
+                            project_name=project_name,  # 项目名称
+                            project_ID=project_ID,  # 项目编号
+                            project_region=project_region,  # 所在区划
+                            build_company=build_company,  # 建设单位
+                            project_type=project_type,  # 项目分类
+                        )
+                        if self.__saveOneData__(table_name='ProjectInfo', data=item):
+                            self.__saveOneID__(idx=project_ID, rediskey='ProjectID')
+                            self.__saveOneID__(idx=project_num, rediskey='TempTenderListID')
+                            self.__saveOneID__(idx=project_num, rediskey='TempContractListID')
+                            self.__saveOneID__(idx=project_num, rediskey='TempProFinishListID')
+                            self.__saveOneID__(idx=project_num, rediskey='TempProCensorListID')
+                            self.__saveOneID__(idx=project_num, rediskey='TempProjectCorpInfoID')
+                            self.__saveOneID__(idx=project_num, rediskey='TempBuildLicenceListID')
 
         except Exception as e:
             print(e)

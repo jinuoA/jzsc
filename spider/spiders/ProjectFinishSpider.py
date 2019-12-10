@@ -9,6 +9,7 @@ from spider.util.decrypt import decrypts
 import json
 import time
 
+
 class ProjectFinishSpider(SpiderMain):
 
     def run(self, list_id):
@@ -38,7 +39,7 @@ class ProjectFinishSpider(SpiderMain):
                 res_json = str(res).replace("'", "").split('success')[0] + 'success":true}' + "]"
                 data_json = json.loads(res_json)
                 data = data_json[0]['data']
-                if len(data) > 0:
+                if data is not None:
                     bafinishID = data['ID']
                     project_ID = data['PRJNUM']
                     completed_code = data['PRJFINISHNUM']

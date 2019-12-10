@@ -38,7 +38,7 @@ class ContractRecordSpider(SpiderMain):
                 res_json = str(res).replace("'", "").split('success')[0] + 'success":true}' + "]"
                 data_json = json.loads(res_json)
                 data = data_json[0]['data']
-                if len(data) > 0:
+                if data is not None:
                     contractID = data['ID']
                     project_ID = data['PRJNUM']
                     contract_code = data['CONTRACTNUM']
@@ -88,6 +88,6 @@ class ContractRecordSpider(SpiderMain):
                         recod_time=recod_time,  # 记录登记时间
                     )
                     if self.__saveOneData__(table_name='ContractFiling', data=item):
-                        self.__saveOneID__(idx=comp_id, rediskey='ContractInfoID')
+                        self.__saveOneID__(idx=contractID, rediskey='ContractInfoID')
         except Exception as e:
             print(e)

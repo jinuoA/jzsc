@@ -1,7 +1,9 @@
 SPIDER_CYCLE = 5
-MAX_ID = 3  # asyncio 最大并发数
+MAX_ID = 5  # asyncio 最大并发数
 COMPANY_MAX = 10  # 抓取公司最大并发数
 MAX_NUM = 5  # list按种类分组
+NUM = 10000  # 从第几条开始
+PRE = 5000  # 每次抓取数量
 
 # URL API
 MAINURL = 'http://jzsc.mohurd.gov.cn/api/webApi/dataservice/query/comp/list?complexname='  # 查询公司信息
@@ -20,6 +22,8 @@ LICENCEMANAGE = 'http://jzsc.mohurd.gov.cn/api/webApi/dataservice/query/project/
 LICENCEMANAGEINFO = 'http://jzsc.mohurd.gov.cn/api/webApi/dataservice/query/project/builderLicenceManageDetail?BuilderLicenceNum='  # 施工许可详情
 LICENCEMANAGEINFOPERSON = 'http://jzsc.mohurd.gov.cn/api/webApi/dataservice/query/project/builderRelation?BuilderLicenceNum='  # 施工许可人员
 
+PROJECTCORPINFO = 'http://jzsc.mohurd.gov.cn/api/webApi/dataservice/query/project/projectCorpInfo?jsxmCode='  # 参与单位与人员
+
 FINISHMANAGE = 'http://jzsc.mohurd.gov.cn/api/webApi/dataservice/query/project/projectFinishManage?jsxmCode='  # 竣工验收列表
 FINISHMANAGEINFO = 'http://jzsc.mohurd.gov.cn/api/webApi/dataservice/query/project/projectFinishManageDetail?id='  # 竣工验收详情
 MAX_PAGE = 'http://jzsc.mohurd.gov.cn/api/webApi/dataservice/query/comp/getTotal?qyId='  # 获取最大页数
@@ -36,21 +40,22 @@ PERSON_ENABLED = False
 QUALIFICATION_ENABLE = False
 
 TENDER_ENABLE = False
-CONTRACT_ENABLED = True
+CONTRACT_ENABLED = False
 LICENCE_ENABLED = False
 FINISH_ENABLED = False
 # SAVEWITHIN_ENABLED = True
-LICENCE_PERSON_ENABLED = True
-
+LICENCE_PERSON_ENABLED = False
 
 STAFF_ENABLED = False
+
+ALL_ENABLED = True
 
 MONTHS = [
     '01',
     '02',
     '03',
     '04',
-    'O5',
+    '05',
     '06',
     '07',
     '08',

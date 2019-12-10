@@ -42,11 +42,12 @@ class ProjectInfoSpider(SpiderMain):
                     project_name = data['PRJNAME']
                     project_ID = data['PRJNUM']
                     project_code = data['PROVINCEPRJNUM']
+                    project_region = ""
                     if data['COUNTY'] is None and data['CITY'] is not None:
                         project_region = data['PROVINCE'] + '-' + data['CITY']
                     elif data['CITY'] is None:
                         project_region = data['PROVINCE']
-                    elif data['COUNTY'] is None and data['CITY'] is not None and data['PROVINCE'] is not None:
+                    else:
                         project_region = data['PROVINCE']+'-'+data['CITY']+'-'+data['COUNTY']
                     build_company = data['BUILDCORPNAME']
                     build_company_code = data['BUILDCORPCODE']

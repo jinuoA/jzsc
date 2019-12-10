@@ -18,12 +18,14 @@ class StaffSpider(SpiderMain):
             new_list = [list_id[x:x + MAX_NUM] for x in range(0, len(list_id), MAX_NUM)]
             for cityNo in new_list:
                 for city_no in cityNo:
-                    for i in range(1960, 1995):
+                    for i in range(1955, 2000):
                         for month in MONTHS:
+
                             cid = city_no[1] + str(i) + month
                             if self.__findOneID__(idx=cid, rediskey='TempStaffInfoID'):
                                 print(cid, ' comp info is spiders')
                                 continue
+                            time.sleep(0.1)
                             staff_list = []
                             url = PERSON_LIST + cid + '&pg=0&pgsz=15&total=0'
                             json_page = self.__getMaxPage__(url)
@@ -35,6 +37,8 @@ class StaffSpider(SpiderMain):
                                         href = PERSON_LIST + cid + "&pg=" + str(page) + "&pgsz=15&total=" + str(total)
                                         staff_list.append(href)
                                 elif total == 0:
+                                    self.__saveOneID__(idx=cid, rediskey='TempStaffInfoID')
+                                    time.sleep(0.1)
                                     continue
                                 elif total == 450:
                                     print("增加查询长度")
@@ -75,15 +79,31 @@ class StaffSpider(SpiderMain):
                 if data_json[0]['data'] is not None and len(data_json) > 0:
                     person_list = data_json[0]['data']['list']
                     for person in person_list:
-                        name = person['REG_QYMC']
-
+                        name = person['RY_NAME']
+                        company_name = person['REG_QYMC']
+                        cid = person['RY_CARDNO']
+                        compile_data = person['profs']
+                        regist_type = person['REG_TYPE_NAME']
+                        regist_code = person['REG_SEAL_CODE']
+                        person_ID = person["RY_ID"]
                         item = dict(
-                            companyName=name
+                            companyName=company_name
                         )
-                        if self.__findOneID__(idx=name, rediskey='companyName'):
+                        item_persion = dict(
+                            insert_time=date,  # 获取时间
+                            person_ID=person_ID,  # 人员ID
+                            name=name,  # 姓名
+                            cid=cid,  # 身份证号
+                            company_name=company_name,  # 公司名称
+                            regist_type=regist_type,  # 注册类别
+                            regist_code=regist_code,  # 注册号（执业印章号）
+                            registered_major=compile_data,  # 注册专业
+                        )
+                        self.__saveOneData__(table_name="personInfo", data=item_persion)
+                        if self.__findOneID__(idx=company_name, rediskey='companyName'):
                             pass
                         else:
-                            self.__saveOneID__(idx=name, rediskey='companyName')
+                            self.__saveOneID__(idx=company_name, rediskey='companyName')
                             self.__saveOneData__(table_name='companyName', data=item)
 
 
